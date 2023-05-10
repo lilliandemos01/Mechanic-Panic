@@ -21,3 +21,8 @@ let config = {
 };
 
 let game = new Phaser.Game(config)
+
+//keyboard vars
+let keyUp, keyDown, keySpace;
+
+let highScore = 0;

@@ -1,10 +1,13 @@
 class Conveyor extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, frame, speed) {
+    constructor(scene, x, y, texture, frame, speed, maxSpeed) {
         super(scene, x, y, texture, frame);
         scene.add.existing(this);
         this.setOrigin(0, 0);
         scene.physics.add.existing(this);
+
         this.surfaceSpeed = speed;
+        this.maxSpeed = maxSpeed;
+        this.setImmovable(true);
 
         this.wheels = []
         for(let i = 0; i < game.config.width; i += 48) {
@@ -20,6 +23,8 @@ class Conveyor extends Phaser.Physics.Arcade.Sprite {
     }
 
     increaseSpeed() {
-        this.surfaceSpeed -= 0.5;
+        if(this.surfaceSpeed < this.maxSpeed) {
+            this.surfaceSpeed -= 0.5;
+        }
     }
 }

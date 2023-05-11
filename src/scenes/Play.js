@@ -12,7 +12,7 @@ class Play extends Phaser.Scene {
 
     create() {
         let initialConveyorSpeed = -1;
-        this.maxConveyorSpeed = 8;
+        this.maxConveyorSpeed = 5;
 
         //add stuff to scene
         this.conveyor1 = new Conveyor(this, 0, 150, "conveyor", 0, initialConveyorSpeed);
@@ -31,53 +31,90 @@ class Play extends Phaser.Scene {
         this.obstacleGroup = this.add.group();
         this.obstacleGroup.runChildUpdate = true;
 
-        //collision detection
-        this.physics.add.collider(this.player, this.conveyorGroup, () => {this.player.isJumping = false});
-        this.physics.add.overlap(this.player, this.obstacleGroup, () => {this.player.destroy()});
-
-        // let scoreConfig = {
-            
-        // };
-
-        //timer set ups
+        //timer and scoring set ups
         this.speedTimer = 0;
         this.spawnTimer = 0;
-        this.spawnBuffer = 1000;
-        // this.pointsTimer = 0;
-        // this.score = 0;
+        this.spawnBuffer = 1500;
+        this.pointsTimer = 0;
+        this.score = 0;
+
+        //collision detection
+        this.physics.add.collider(this.player, this.conveyorGroup, () => {this.player.isJumping = false;}, null, this);
+        this.physics.add.overlap(this.player, this.obstacleGroup, () => this.death(), null, this);
+
+        //UI
+        let scoreConfig = {
+            align: "center"
+        };
+        this.scoreDisplay = this.add.text(game.config.width / 2, 15, `Time\n${this.score}`, scoreConfig);
+
+        this.gameOver = false;
     }
 
     update(time, delta) {
-        this.conveyor1.update();
-        this.conveyor2.update();
-        this.conveyor3.update();
-        this.player.update();
-        this.obstacleGroup.preUpdate();
+        if(!this.gameOver) {
+            console.log("going");
+            this.conveyor1.update();
+            this.conveyor2.update();
+            this.conveyor3.update();
+            this.player.update();
 
-        //increase conveyor belt speed every 10 seconds
-        this.speedTimer += delta;
-        if(this.conveyor1.surfaceSpeed < this.maxConveyorSpeed) {
-            while(this.speedTimer >= 10000) {
-                this.conveyor1.increaseSpeed();
-                this.conveyor2.increaseSpeed();
-                this.conveyor3.increaseSpeed();
-                this.obstacleGroup.getChildren().forEach(function(obstacle) {obstacle.increaseSpeed();});
-                this.speedTimer = 0;
+            //increase conveyor belt speed every 10 seconds
+            this.speedTimer += delta;
+            if(this.conveyor1.surfaceSpeed < this.maxConveyorSpeed) {
+                while(this.speedTimer >= 15000) {
+                    this.conveyor1.increaseSpeed();
+                    this.conveyor2.increaseSpeed();
+                    this.conveyor3.increaseSpeed();
+                    this.obstacleGroup.getChildren().forEach(function(obstacle) {obstacle.increaseSpeed();});
+                    this.spawnBuffer -= 50;
+                    difficulty += 1;
+                    this.speedTimer = 0;
+                }
+            }
+
+            //rate that obstacles spawn
+            this.spawnTimer += delta;
+            while(this.spawnTimer >= this.spawnBuffer) {
+                this.spawnObstacle();
+                this.spawnTimer = 0;
+            }
+
+            //increase score every second
+            this.pointsTimer += delta;
+            while(this.pointsTimer > 1000) {
+                this.score += 1;
+                this.scoreDisplay.text = `Time\n${this.score}`;
+                this.pointsTimer = 0;
             }
         }
+    }
 
-        //rate that obstacles spawn
-        this.spawnTimer += delta;
-        while(this.spawnTimer >= this.spawnBuffer) {
-            this.obstacle = new Obstacle(this, 700, this.conveyor1.y - 25, "obstacle", 0, this.conveyor1.surfaceSpeed);
-            this.obstacleGroup.add(this.obstacle);
-            this.spawnTimer = 0;
+    death() {
+        this.gameOver = true;
+        this.obstacleGroup.runChildUpdate = false;
+        this.player.destroy();
+        
+        if(this.score > highScore) {
+            highScore = this.score;
         }
-        // //increase score every second
-        // this.pointsTimer += delta;
-        // while(this.pointsTimer > 1000) {
-        //     this.score += 1;
-        //     this.pointsTimer = 0;
-        // }
+    }
+
+    spawnObstacle() {
+        let spawnLevel = Math.floor(Math.random() * 3);
+        this.obstacle = new Obstacle(this, 700, this.conveyorGroup.children.entries[spawnLevel].y - 25, "obstacle", 0, this.conveyor1.surfaceSpeed);
+        this.obstacleGroup.add(this.obstacle);
+
+        if(difficulty >= 2){
+            spawnLevel = Math.floor(Math.random() * 3);
+            this.obstacle = new Obstacle(this, 900, this.conveyorGroup.children.entries[spawnLevel].y - 25, "obstacle", 0, this.conveyor1.surfaceSpeed);
+            this.obstacleGroup.add(this.obstacle);
+        }
+        
+        if(difficulty >= 8) {
+            spawnLevel = Math.floor(Math.random() * 3);
+            this.obstacle = new Obstacle(this, 1100, this.conveyorGroup.children.entries[spawnLevel].y - 25, "obstacle", 0, this.conveyor1.surfaceSpeed);
+            this.obstacleGroup.add(this.obstacle);
+        }
     }
 }

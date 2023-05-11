@@ -7,7 +7,7 @@ class Mechanic extends Phaser.Physics.Arcade.Sprite {
         scene.physics.add.existing(this);
 
         this.moveSpeed = 3;
-        this.highest = true;
+        this.highest = false;
         this.lowest = false;
         this.isJumping = false;
 
@@ -16,10 +16,19 @@ class Mechanic extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        if(Phaser.Input.Keyboard.JustDown(keyUp)) {
+        if(this.y < 200)
+            this.highest = true;
+        else
+            this.highest = false;
+        if(this.y > 350)
+            this.lowest = true;
+        else
+            this.lowest = false;
+
+        if(Phaser.Input.Keyboard.JustDown(keyUp) && !this.isJumping && !this.highest) {
             this.y -= 190;
         }
-        if(Phaser.Input.Keyboard.JustDown(keyDown)) {
+        if(Phaser.Input.Keyboard.JustDown(keyDown) && !this.isJumping && !this.lowest) {
             this.y += 190;
         }
         if(Phaser.Input.Keyboard.JustDown(keySpace) && !this.isJumping) {

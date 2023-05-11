@@ -26,3 +26,4 @@ let game = new Phaser.Game(config)
 let keyUp, keyDown, keySpace;
 
 let highScore = 0;
+let difficulty = 0;

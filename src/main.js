@@ -2,6 +2,8 @@
  * Endless Runner
  * Hours Spent: 5
  * Creative Tilt: first time making music :O
+ * 
+ * to add to credits (delete later): https://fonts.google.com/specimen/Kanit?category=Serif,Sans+Serif,Display,Monospace&subset=latin&noto.script=Latn
 */
 
 let config = {

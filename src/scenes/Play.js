@@ -12,7 +12,7 @@ class Play extends Phaser.Scene {
 
     create() {
         let initialConveyorSpeed = -1;
-        this.maxConveyorSpeed = 5;
+        this.maxConveyorSpeed = -5;
 
         //add stuff to scene
         this.conveyor1 = new Conveyor(this, 0, 150, "conveyor", 0, initialConveyorSpeed);
@@ -44,9 +44,11 @@ class Play extends Phaser.Scene {
 
         //UI
         let scoreConfig = {
+            fontFamily: "Kanit",
+            fontSize: "28px",
             align: "center"
         };
-        this.scoreDisplay = this.add.text(game.config.width / 2, 15, `Time\n${this.score}`, scoreConfig);
+        this.scoreDisplay = this.add.text(game.config.width / 2, 15, `Time\n${this.score}`, scoreConfig).setOrigin(0.5, 0);
 
         this.gameOver = false;
     }
@@ -61,8 +63,8 @@ class Play extends Phaser.Scene {
 
             //increase conveyor belt speed every 10 seconds
             this.speedTimer += delta;
-            if(this.conveyor1.surfaceSpeed < this.maxConveyorSpeed) {
-                while(this.speedTimer >= 15000) {
+            if(this.conveyor1.surfaceSpeed > this.maxConveyorSpeed) {
+                while(this.speedTimer >= 10000) {
                     this.conveyor1.increaseSpeed();
                     this.conveyor2.increaseSpeed();
                     this.conveyor3.increaseSpeed();

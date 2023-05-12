@@ -3,7 +3,8 @@
  * Hours Spent: 5
  * Creative Tilt: first time making music :O
  * 
- * to add to credits (delete later): https://fonts.google.com/specimen/Kanit?category=Serif,Sans+Serif,Display,Monospace&subset=latin&noto.script=Latn
+ * to add to credits (delete here later): 
+ * https://fonts.google.com/specimen/Kanit?category=Serif,Sans+Serif,Display,Monospace&subset=latin&noto.script=Latn
 */
 
 let config = {
@@ -11,6 +12,7 @@ let config = {
     height: 600,
     width: 800,
     autoCenter: true,
+    backgroundColor: "4b3e8a",
     physics: {
         default: "arcade",
         debug: false,

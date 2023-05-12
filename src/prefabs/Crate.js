@@ -1,4 +1,4 @@
-class Obstacle extends Phaser.Physics.Arcade.Sprite {
+class Crate extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame, speed) {
         super(scene, x, y, texture, frame);
 

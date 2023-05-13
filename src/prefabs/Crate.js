@@ -12,8 +12,8 @@ class Crate extends Phaser.Physics.Arcade.Sprite {
     update() {
         this.x += this.speed;
 
-        if(this.x < 0) {
-            this.destroy;
+        if(this.x < 80) {
+            this.destroy();
         }
     }
 

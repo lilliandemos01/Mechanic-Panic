@@ -10,6 +10,7 @@ class Play extends Phaser.Scene {
         this.load.image("crate", "./assets/crate.png");
         this.load.image("furnace", "./assets/furnace.png");
         this.load.image("furnace door", "./assets/furnace_door.png");
+        this.load.image("gear", "./assets/gear.png");
     }
 
     create() {
@@ -40,17 +41,18 @@ class Play extends Phaser.Scene {
         this.initialAnims = this.anims.create(this.animsConfig);
 
         //add images to scene
+        this.gear = this.add.image(game.config.width / 2, game.config.height / 2, "gear").setOrigin(0.5).setDepth(-4).setAlpha(0.4);
         this.conveyor1 = new Conveyor(this, this.game.config.width, 150, "conveyor", 0, initialConveyorSpeed);
         this.conveyor2 = new Conveyor(this, this.game.config.width, 340, "conveyor", 0, initialConveyorSpeed);
         this.conveyor3 = new Conveyor(this, this.game.config.width, 530, "conveyor", 0, initialConveyorSpeed);
         this.player = new Mechanic(this, 130, this.conveyor1.y - 50, "mechanic");
+        this.player.play("run");
         this.furnace1 = this.add.image(0, this.conveyor1.y - 100, "furnace").setOrigin(0);
         this.furnace2 = this.add.image(0, this.conveyor2.y - 100, "furnace").setOrigin(0);
         this.furnace3 = this.add.image(0, this.conveyor3.y - 100, "furnace").setOrigin(0);
         this.add.image(70, this.conveyor1.y - 70, "furnace door").setOrigin(0, 0).setDepth(-1);
         this.add.image(70, this.conveyor2.y - 70, "furnace door").setOrigin(0, 0).setDepth(-2);
         this.add.image(70, this.conveyor3.y - 70, "furnace door").setOrigin(0, 0).setDepth(-3);
-        this.player.play("run");
 
         //define input
         keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -79,7 +81,9 @@ class Play extends Phaser.Scene {
             fontFamily: "Kanit",
             fontSize: "24px",
             color: "#e3cc1e",
-            align: "center"
+            align: "center",
+            stroke: "#000000",
+            strokeThickness: 4
         };
         this.scoreDisplay = this.add.text(game.config.width / 2, 15, `TIME\n${this.score}`, scoreConfig).setOrigin(0.5, 0);
 
@@ -88,10 +92,13 @@ class Play extends Phaser.Scene {
 
     update(time, delta) {
         if(!this.gameOver) {
+            this.rainbowBackground();
             this.conveyor1.update();
             this.conveyor2.update();
             this.conveyor3.update();
             this.player.update();
+
+            this.gear.angle += this.conveyor1.surfaceSpeed / 2;
 
             //increase conveyor belt speed every 10 seconds
             this.speedTimer += delta;
@@ -110,6 +117,7 @@ class Play extends Phaser.Scene {
                     this.music.setRate(this.rate + 0.025);
                     this.rate += 0.025;
 
+                    //increase animation fps
                     this.initialAnims.destroy();
                     this.animsConfig.frameRate += 1;
                     this.initialAnims = this.anims.create(this.animsConfig);
@@ -140,6 +148,7 @@ class Play extends Phaser.Scene {
         this.gameOver = true;
         this.crateGroup.runChildUpdate = false;
         this.player.destroy();
+        this.music.stop();
         
         if(this.score > highScore) {
             highScore = this.score;
@@ -148,14 +157,14 @@ class Play extends Phaser.Scene {
 
     spawnCrate() {
         let spawnLevel = Math.floor(Math.random() * 3);
-        this.crate = new Crate(this, 750, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
+        this.crate = new Crate(this, 775, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
         this.crateGroup.add(this.crate);
         this.updateFurnaceDepth(this.crate);
 
         //spawn 2 crates
         if(difficulty >= 2){
             spawnLevel = Math.floor(Math.random() * 3);
-            this.crate = new Crate(this, 950, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
+            this.crate = new Crate(this, 975, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
             this.crateGroup.add(this.crate);
             this.updateFurnaceDepth(this.crate);
         }
@@ -163,7 +172,7 @@ class Play extends Phaser.Scene {
         //spawn 3 crates
         if(difficulty >= 8) {
             spawnLevel = Math.floor(Math.random() * 3);
-            this.crate = new Crate(this, 1150, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
+            this.crate = new Crate(this, 1175, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
             this.crateGroup.add(this.crate);
             this.updateFurnaceDepth(this.crate);
         }
@@ -174,5 +183,14 @@ class Play extends Phaser.Scene {
         this.furnace1.depth = this.crate.depth + 1;
         this.furnace2.depth = this.crate.depth + 1;
         this.furnace3.depth = this.crate.depth + 1;
+    }
+
+    rainbowBackground() {
+        this.tweens.add({
+            targets: this.backgroundColor,
+            tint: Math.random() * 0xFFFFFF,
+            duration: 1000,
+            ease: "linear"
+        });
     }
 }

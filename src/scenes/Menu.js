@@ -14,14 +14,17 @@ class Menu extends Phaser.Scene {
 
         let menuConfig = {
             fontFamily: "Kanit",
-            fontSize: "24px",
+            fontSize: "32px",
             color: "#e3cc1e",
-            align: "center"
+            align: "center",
+            stroke: "#707070",
+            strokeThickness: 20
         };
-        this.add.text(game.config.width / 2, game.config.height / 2 + 50, "How to Play: Press UP", menuConfig).setOrigin(0.5);
-        this.add.text(game.config.width / 2, game.config.height / 2 + 150, "Credits: Press DOWN", menuConfig).setOrigin(0.5);
-        menuConfig.fontSize = "36px";
-        this.add.text(game.config.width / 2, game.config.height / 2 + 100, "Press SPACE to Start", menuConfig).setOrigin(0.5);
+        this.add.text(game.config.width / 2, game.config.height / 2 + 100, "How to Play: Press UP", menuConfig).setOrigin(0.5);
+        this.add.text(game.config.width / 2, game.config.height / 2 + 200, "Credits: Press DOWN", menuConfig).setOrigin(0.5);
+        menuConfig.fontSize = "48px";
+        this.add.text(game.config.width / 2, game.config.height / 2 + 150, "Press SPACE to Start", menuConfig).setOrigin(0.5);
+        menuConfig.fontSize = "92px";
     }
 
     update() {

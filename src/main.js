@@ -1,6 +1,6 @@
 /* Lily Demos
- * Endless Runner
- * Hours Spent: 5
+ * Mechanic Panic
+ * Hours Spent: 15
  * Creative Tilt: first time making music :O
  * 
  * to add to credits (delete here later): 
@@ -12,7 +12,7 @@ let config = {
     height: 600,
     width: 800,
     autoCenter: true,
-    backgroundColor: "4b3e8a",
+    backgroundColor: "#7d4651",
     physics: {
         default: "arcade",
         debug: false,

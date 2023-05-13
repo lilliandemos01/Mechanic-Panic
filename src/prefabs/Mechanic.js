@@ -13,6 +13,7 @@ class Mechanic extends Phaser.Physics.Arcade.Sprite {
 
         this.setGravityY(300);
         this.setAccelerationY(500);
+        this.body.setSize(1);
     }
 
     update() {

@@ -10,6 +10,7 @@ class Mechanic extends Phaser.Physics.Arcade.Sprite {
         this.highest = false;
         this.lowest = false;
         this.isJumping = false;
+        this.sfx_jump = scene.sound.add("jump");
 
         this.setGravityY(300);
         this.setAccelerationY(500);
@@ -33,6 +34,7 @@ class Mechanic extends Phaser.Physics.Arcade.Sprite {
             this.y += 190;
         }
         if(Phaser.Input.Keyboard.JustDown(keySpace) && !this.isJumping) {
+            this.sfx_jump.play();
             this.isJumping = true;
             this.setVelocityY(-300);
         }

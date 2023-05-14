@@ -11,9 +11,12 @@ class Play extends Phaser.Scene {
         this.load.image("furnace", "./assets/furnace.png");
         this.load.image("furnace door", "./assets/furnace_door.png");
         this.load.image("tunnel", "./assets/tunnel.png");
+        this.load.image("ember", "./assets/ember.png");
     }
 
     create() {
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
+        
         //music
         let musicConfig = {
             rate: 0.6,
@@ -91,6 +94,7 @@ class Play extends Phaser.Scene {
         };
         this.scoreDisplay = this.add.text(game.config.width / 2, 15, `TIME\n${this.score}`, this.scoreConfig).setOrigin(0.5, 0);
 
+        //game over flag
         this.gameOver = false;
     }
 
@@ -145,9 +149,17 @@ class Play extends Phaser.Scene {
                 this.scoreDisplay.text = `TIME\n${this.score}`;
                 this.pointsTimer = 0;
             }
+
+            if(this.player.isJumping) {
+                this.player.setFrame("mechanic_5");
+            }
         }
         //game over
         else {
+            if(this.player.x < 30){
+                this.player.destroy();
+            }
+
             if(Phaser.Input.Keyboard.JustDown(keySpace)) {
                 this.scene.restart();
             }
@@ -160,9 +172,39 @@ class Play extends Phaser.Scene {
     death(scene) {
         this.gameOver = true;
         this.crateGroup.runChildUpdate = false;
-        this.player.destroy();
         this.music.stop();
-        this.endScreen(scene);
+        this.sound.play("hit");
+        this.player.setOrigin(0.5);
+        this.player.setVelocityX(-50);
+        this.player.setGravityY(0);
+        this.player.setAccelerationY(0);
+        this.player.setAngularVelocity(-1000);
+
+        this.time.delayedCall(500, () => {
+            this.sound.play("sizzle");
+            this.sound.play("scream");
+            //particles
+            this.emberParticles = this.add.particles(0, 0, "ember", {
+                emitZone: {
+                    source: new Phaser.Geom.Line(80, this.player.y + 30, 80, this.player.y),
+                    type: "random",
+                    quantity: 1500
+                },
+                speedX: {min: 130, max: 200},
+                speedY: {min: -30, max: -50},
+                accelerationX: {random: [75, 150]},
+                accelerationY: {random: [10, 15]},
+                lifeSpan: {min: 3000, max: 5000},
+                scale: { random: [0.5, 1]},
+                gravityY: 200,
+                frequency: 10,
+                blendMode: "ADD",
+            });
+        });
+
+        this.time.delayedCall(2500, () => {
+            this.endScreen(scene);
+        });
     }
 
     spawnCrate() {
@@ -184,12 +226,12 @@ class Play extends Phaser.Scene {
             spawnLevel = Math.floor(Math.random() * 3);
             this.crate = new Crate(this, 1175, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
             this.crateGroup.add(this.crate);
-            this.updateDepth();
+            this.updateFurnaceDepth();
         }
     }
 
     //makes sure new crates are drawn behind the furnaces and tunnels
-    updateFurnaceDepth () {
+    updateFurnaceDepth() {
         this.furnace1.depth = this.crate.depth + 1;
         this.furnace2.depth = this.crate.depth + 1;
         this.furnace3.depth = this.crate.depth + 1;
@@ -220,7 +262,7 @@ class Play extends Phaser.Scene {
         else {
             this.deathScreen = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 
                                              `YOU AVOIDED IMMOLATION FOR: \n${this.score} SECONDS\nWE THANK YOU FOR YOUR SACRIFICE\n\nPress SPACE to Try Again\nor UP to Exit to Title Screen`, this.scoreConfig)
-                                             .setOrigin(0.5, 0.5).setDepth(100000).setScale(0.1);
+                                             .setOrigin(0.5, 0.5).setDepth(1000000).setScale(0.1);
             scene.tweens.add({
             targets: this.deathScreen,
             scale: 1,
@@ -233,7 +275,7 @@ class Play extends Phaser.Scene {
     newHighScore(scene) {
         this.deathScreen = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 
                       `YOU AVOIDED IMMOLATION FOR: \n${this.score} SECONDS\nTHAT'S A NEW RECORD!\n\nPress SPACE to Try Again\nor UP to Exit to Title Screen`, this.scoreConfig)
-                      .setOrigin(0.5, 0.5).setDepth(100000).setScale(0.1);
+                      .setOrigin(0.5, 0.5).setDepth(1000000).setScale(0.1);
         scene.tweens.add({
         targets: this.deathScreen,
         scale: 1,

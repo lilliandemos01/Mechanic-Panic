@@ -4,6 +4,8 @@ class Tutorial extends Phaser.Scene {
     }
 
     create() {
+        this.menu_sfx = this.sound.add("menu_sfx", {volume: 0.3});
+
         var cam = this.cameras.main;
         var targetScene = this.scene.get("menuScene");
         var targetCam = targetScene.cameras.main;
@@ -12,19 +14,19 @@ class Tutorial extends Phaser.Scene {
         //sliding scene transition back to menu
         this.input.keyboard.on(
             "keydown-DOWN",
-            function () {
-              this.scene.transition({
-                target: "menuScene",
-                sleep: true,
-                duration: 500,
-                onUpdate: function (progress) {
-                  const t = Phaser.Math.Easing.Quadratic.InOut(progress);
-                  
-                  cam.setViewport(0, -t * defaultHeight, cam.width, (1 + t) * defaultHeight);
-                  targetCam.setViewport(0, 0, targetCam.width, 0);
-                  targetCam.setScroll(0, -(1 - t) * defaultHeight);
-                }
-              });
+            function() {
+                this.menu_sfx.play();
+                this.scene.transition({
+                    target: "menuScene",
+                    sleep: true,
+                    duration: 750,
+                    onUpdate: function (progress) {
+                        const t = Phaser.Math.Easing.Quadratic.InOut(progress);
+                        cam.setViewport(0, -t * defaultHeight, cam.width, (1 + t) * defaultHeight);
+                        targetCam.setViewport(0, 0, targetCam.width, 0);
+                        targetCam.setScroll(0, -(1 - t) * defaultHeight);   
+                    }
+                });
             },this);
 
         let tutorialConfig = {

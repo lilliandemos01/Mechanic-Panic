@@ -5,14 +5,20 @@ class Menu extends Phaser.Scene {
 
     preload() {
         this.load.audio("music", "./assets/industrial_loop.wav");
+        this.load.audio("jump", "./assets/jump.wav");
+        this.load.audio("sizzle", "./assets/sizzle.wav");
+        this.load.audio("menu_sfx", "./assets/menu_sfx.wav");
+        this.load.audio("hit", "./assets/hit.wav");
+        this.load.audio("scream", "./assets/scream.wav");
         this.load.image("gear", "./assets/gear.png");
     }
 
     create() {
+        this.menu_sfx = this.sound.add("menu_sfx", {volume: 0.3});
+
         //sliding scene transition set up
         this.scene.launch("tutorialScene").sleep("tutorialScene");
         this.scene.launch("creditsScene").sleep("creditsScene");
-
         var cam = this.cameras.main;
         var targetScene1 = this.scene.get("tutorialScene");
         var targetScene2 = this.scene.get("creditsScene");
@@ -23,36 +29,37 @@ class Menu extends Phaser.Scene {
         //sliding scene transition to tutorial
         this.input.keyboard.on(
             "keydown-UP",
-            function () {
-              this.scene.transition({
-                target: "tutorialScene",
-                sleep: true,
-                duration: 500,
-                onUpdate: function (progress) {
-                  const t = Phaser.Math.Easing.Quadratic.InOut(progress);
-                  cam.setViewport(0, t * defaultHeight, cam.width, (1 - t) * defaultHeight);
-                  targetCam1.setViewport(0, 0, targetCam1.width, t * defaultHeight);
-                  targetCam1.setScroll(0, (1 - t) * defaultHeight);
-                }
-              });
+            function() {
+                this.menu_sfx.play();
+                this.scene.transition({
+                    target: "tutorialScene",
+                    sleep: true,
+                    duration: 750,
+                    onUpdate: function (progress) {
+                        const t = Phaser.Math.Easing.Quadratic.InOut(progress);
+                        cam.setViewport(0, t * defaultHeight, cam.width, (1 - t) * defaultHeight);
+                        targetCam1.setViewport(0, 0, targetCam1.width, t * defaultHeight);
+                        targetCam1.setScroll(0, (1 - t) * defaultHeight);
+                    }
+                });
             },this);
 
-          //sliding scene transition to credits
-          this.input.keyboard.on(
+        //sliding scene transition to credits
+        this.input.keyboard.on(
             "keydown-DOWN",
-            function () {
-              this.scene.transition({
-                target: "creditsScene",
-                sleep: true,
-                duration: 500,
-                onUpdate: function (progress) {
-                  const t = Phaser.Math.Easing.Quadratic.InOut(progress);
-                  
-                  cam.setViewport(0, -t * defaultHeight, cam.width, (1 + t) * defaultHeight);
-                  targetCam2.setViewport(0, 0, targetCam2.width, 0);
-                  targetCam2.setScroll(0, -(1 - t) * defaultHeight);
-                }
-              });
+            function() {
+                this.menu_sfx.play();
+                this.scene.transition({
+                    target: "creditsScene",
+                    sleep: true,
+                    duration: 750,
+                    onUpdate: function (progress) {
+                        const t = Phaser.Math.Easing.Quadratic.InOut(progress);
+                        cam.setViewport(0, -t * defaultHeight, cam.width, (1 + t) * defaultHeight);
+                        targetCam2.setViewport(0, 0, targetCam2.width, 0);
+                        targetCam2.setScroll(0, -(1 - t) * defaultHeight);
+                    }
+                });
             },this);
 
         //define input
@@ -106,10 +113,11 @@ class Menu extends Phaser.Scene {
         this.gearRight.angle -= 0.5;
 
         if(Phaser.Input.Keyboard.JustDown(keySpace)) {
-            //play sfx
-            //stop effect
-            //wait till done then:
-            this.scene.start("playScene");
+            this.cameras.main.fadeOut(1000, 0, 0, 0);
+            this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+                this.scene.stop();
+                this.scene.start("playScene");
+            });
         }
     }
 }

@@ -9,10 +9,58 @@ class Menu extends Phaser.Scene {
     }
 
     create() {
-        keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
-        keyDown = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        //sliding scene transition set up
+        this.scene.launch("tutorialScene").sleep("tutorialScene");
+        this.scene.launch("creditsScene").sleep("creditsScene");
 
+        var cam = this.cameras.main;
+        var targetScene1 = this.scene.get("tutorialScene");
+        var targetScene2 = this.scene.get("creditsScene");
+        var targetCam1 = targetScene1.cameras.main;
+        var targetCam2 = targetScene2.cameras.main;
+        var defaultHeight = this.cameras.default.height;
+        
+        //sliding scene transition to tutorial
+        this.input.keyboard.on(
+            "keydown-UP",
+            function () {
+              this.scene.transition({
+                target: "tutorialScene",
+                sleep: true,
+                duration: 2000,
+                onUpdate: function (progress) {
+                  const t = Phaser.Math.Easing.Quadratic.InOut(progress);
+                  cam.setViewport(0, t * defaultHeight, cam.width, (1 - t) * defaultHeight);
+                  targetCam1.setViewport(0, 0, targetCam1.width, t * defaultHeight);
+                  targetCam1.setScroll(0, (1 - t) * defaultHeight);
+                }
+              });
+            },
+            this);
+
+          //sliding scene transition to credits
+          this.input.keyboard.on(
+            "keydown-DOWN",
+            function () {
+              this.scene.transition({
+                target: "creditsScene",
+                sleep: true,
+                duration: 2000,
+                onUpdate: function (progress) {
+                  const t = Phaser.Math.Easing.Quadratic.InOut(progress);
+                  
+                  cam.setViewport(0, -t * defaultHeight, cam.width, (1 + t) * defaultHeight);
+                  targetCam2.setViewport(0, 0, targetCam2.width, 0);
+                  targetCam2.setScroll(0, -(1 - t) * defaultHeight);
+                }
+              });
+            },
+            this);
+
+        //define input
+        keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        //menu graphics - through high score
         this.gearLeft = this.add.image(this.game.config.width / 5, 200, "gear").setOrigin(0.5).setScale(0.5);
         this.gearRight = this.add.image(this.game.config.width * 4 / 5, 200, "gear").setOrigin(0.5).setScale(0.5);
 
@@ -40,6 +88,9 @@ class Menu extends Phaser.Scene {
         }
 
         this.scaleCounter = 0;
+
+        this.camera = new Phaser.Cameras.Scene2D.Camera(0, 0, game.config.width, game.config.height);
+        this.camera.scrollY = -500;
     }
 
     update() {

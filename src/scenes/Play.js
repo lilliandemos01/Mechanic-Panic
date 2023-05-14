@@ -16,7 +16,7 @@ class Play extends Phaser.Scene {
 
     create() {
         this.cameras.main.fadeIn(1000, 0, 0, 0);
-        
+
         //music
         let musicConfig = {
             rate: 0.6,
@@ -100,7 +100,6 @@ class Play extends Phaser.Scene {
 
     update(time, delta) {
         if(!this.gameOver) {
-            // this.rainbowBackground();
             this.conveyor1.update();
             this.conveyor2.update();
             this.conveyor3.update();
@@ -170,6 +169,11 @@ class Play extends Phaser.Scene {
     }
 
     death(scene) {
+        let isHighScore = false;
+        if(this.score > highScore) {
+            highScore = this.score;
+            isHighScore = true;
+        }
         this.gameOver = true;
         this.crateGroup.runChildUpdate = false;
         this.music.stop();
@@ -203,7 +207,7 @@ class Play extends Phaser.Scene {
         });
 
         this.time.delayedCall(2500, () => {
-            this.endScreen(scene);
+            this.endScreen(scene, isHighScore);
         });
     }
 
@@ -240,23 +244,13 @@ class Play extends Phaser.Scene {
         this.tunnel3.depth = this.crate.depth + 1;
     }
 
-    // rainbowBackground() {
-    //     this.tweens.add({
-    //         targets: this.backgroundColor,
-    //         tint: Math.random() * 0xFFFFFF,
-    //         duration: 1000,
-    //         ease: "linear"
-    //     });
-    // }
-
-    endScreen(scene) {
+    endScreen(scene, isHighScore) {
         this.scoreDisplay.destroy();
         this.scoreConfig.fontSize = "32px";
         this.scoreConfig.strokeThickness = 0;
         this.scoreConfig.backgroundColor = "#000000";
         this.scoreConfig.padding = {x: 100, y: 50};
-        if(this.score > highScore) {
-            highScore = this.score;
+        if(isHighScore) {
             this.newHighScore(scene);
         }
         else {

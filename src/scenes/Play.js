@@ -10,6 +10,7 @@ class Play extends Phaser.Scene {
         this.load.image("crate", "./assets/crate.png");
         this.load.image("furnace", "./assets/furnace.png");
         this.load.image("furnace door", "./assets/furnace_door.png");
+        this.load.image("tunnel", "./assets/tunnel.png");
     }
 
     create() {
@@ -52,6 +53,9 @@ class Play extends Phaser.Scene {
         this.add.image(70, this.conveyor1.y - 70, "furnace door").setOrigin(0, 0).setDepth(-1);
         this.add.image(70, this.conveyor2.y - 70, "furnace door").setOrigin(0, 0).setDepth(-2);
         this.add.image(70, this.conveyor3.y - 70, "furnace door").setOrigin(0, 0).setDepth(-3);
+        this.tunnel1 = this.add.image(game.config.width - 120, this.conveyor1.y - 38, "tunnel").setOrigin(0, 0);
+        this.tunnel2 = this.add.image(game.config.width - 120, this.conveyor2.y - 38, "tunnel").setOrigin(0, 0);
+        this.tunnel3 = this.add.image(game.config.width - 120, this.conveyor3.y - 38, "tunnel").setOrigin(0, 0);
 
         //define input
         keyUp = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP);
@@ -73,25 +77,26 @@ class Play extends Phaser.Scene {
 
         //collision detection
         this.physics.add.collider(this.player, this.conveyorGroup, () => {this.player.isJumping = false;}, null, this);
-        this.physics.add.overlap(this.player, this.crateGroup, () => this.death(), null, this);
+        this.physics.add.overlap(this.player, this.crateGroup, () => this.death(this), null, this);
 
         //UI
-        let scoreConfig = {
+        this.scoreConfig = {
             fontFamily: "Kanit",
             fontSize: "24px",
             color: "#e3cc1e",
             align: "center",
             stroke: "#000000",
+            backgroundColor: null,
             strokeThickness: 4
         };
-        this.scoreDisplay = this.add.text(game.config.width / 2, 15, `TIME\n${this.score}`, scoreConfig).setOrigin(0.5, 0);
+        this.scoreDisplay = this.add.text(game.config.width / 2, 15, `TIME\n${this.score}`, this.scoreConfig).setOrigin(0.5, 0);
 
         this.gameOver = false;
     }
 
     update(time, delta) {
         if(!this.gameOver) {
-            this.rainbowBackground();
+            // this.rainbowBackground();
             this.conveyor1.update();
             this.conveyor2.update();
             this.conveyor3.update();
@@ -141,55 +146,99 @@ class Play extends Phaser.Scene {
                 this.pointsTimer = 0;
             }
         }
+        //game over
+        else {
+            if(Phaser.Input.Keyboard.JustDown(keySpace)) {
+                this.scene.restart();
+            }
+            if(Phaser.Input.Keyboard.JustDown(keyUp)) {
+                this.scene.start("menuScene");
+            }
+        }
     }
 
-    death() {
+    death(scene) {
         this.gameOver = true;
         this.crateGroup.runChildUpdate = false;
         this.player.destroy();
         this.music.stop();
-        
-        if(this.score > highScore) {
-            highScore = this.score;
-        }
+        this.endScreen(scene);
     }
 
     spawnCrate() {
         let spawnLevel = Math.floor(Math.random() * 3);
         this.crate = new Crate(this, 775, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
         this.crateGroup.add(this.crate);
-        this.updateFurnaceDepth(this.crate);
+        this.updateFurnaceDepth();
 
         //spawn 2 crates
-        if(difficulty >= 2){
+        if(difficulty >= 3){
             spawnLevel = Math.floor(Math.random() * 3);
             this.crate = new Crate(this, 975, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
             this.crateGroup.add(this.crate);
-            this.updateFurnaceDepth(this.crate);
+            this.updateFurnaceDepth();
         }
         
         //spawn 3 crates
-        if(difficulty >= 8) {
+        if(difficulty >= 12) {
             spawnLevel = Math.floor(Math.random() * 3);
             this.crate = new Crate(this, 1175, this.conveyorGroup.children.entries[spawnLevel].y - 25, "crate", 0, this.conveyor1.surfaceSpeed);
             this.crateGroup.add(this.crate);
-            this.updateFurnaceDepth(this.crate);
+            this.updateDepth();
         }
     }
 
-    //makes sure new crates are drawn behind the furnaces
-    updateFurnaceDepth (crate) {
+    //makes sure new crates are drawn behind the furnaces and tunnels
+    updateFurnaceDepth () {
         this.furnace1.depth = this.crate.depth + 1;
         this.furnace2.depth = this.crate.depth + 1;
         this.furnace3.depth = this.crate.depth + 1;
+        this.tunnel1.depth = this.crate.depth + 1;
+        this.tunnel2.depth = this.crate.depth + 1;
+        this.tunnel3.depth = this.crate.depth + 1;
     }
 
-    rainbowBackground() {
-        this.tweens.add({
-            targets: this.backgroundColor,
-            tint: Math.random() * 0xFFFFFF,
-            duration: 1000,
-            ease: "linear"
+    // rainbowBackground() {
+    //     this.tweens.add({
+    //         targets: this.backgroundColor,
+    //         tint: Math.random() * 0xFFFFFF,
+    //         duration: 1000,
+    //         ease: "linear"
+    //     });
+    // }
+
+    endScreen(scene) {
+        this.scoreDisplay.destroy();
+        this.scoreConfig.fontSize = "32px";
+        this.scoreConfig.strokeThickness = 0;
+        this.scoreConfig.backgroundColor = "#000000";
+        this.scoreConfig.padding = {x: 100, y: 50};
+        if(this.score > highScore) {
+            highScore = this.score;
+            this.newHighScore(scene);
+        }
+        else {
+            this.deathScreen = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 
+                                             `YOU AVOIDED IMMOLATION FOR: \n${this.score} SECONDS\nWE THANK YOU FOR YOUR SACRIFICE\n\nPress SPACE to Try Again\nor UP to Exit to Title Screen`, this.scoreConfig)
+                                             .setOrigin(0.5, 0.5).setDepth(100000).setScale(0.1);
+            scene.tweens.add({
+            targets: this.deathScreen,
+            scale: 1,
+            ease: "Linear",
+            duration: 150
+            });
+        }
+    }
+
+    newHighScore(scene) {
+        this.deathScreen = this.add.text(game.config.width / 2, game.config.height / 2 - 20, 
+                      `YOU AVOIDED IMMOLATION FOR: \n${this.score} SECONDS\nTHAT'S A NEW RECORD!\n\nPress SPACE to Try Again\nor UP to Exit to Title Screen`, this.scoreConfig)
+                      .setOrigin(0.5, 0.5).setDepth(100000).setScale(0.1);
+        scene.tweens.add({
+        targets: this.deathScreen,
+        scale: 1,
+        ease: "Linear",
+        duration: 150
         });
     }
 }

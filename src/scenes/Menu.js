@@ -29,7 +29,15 @@ class Menu extends Phaser.Scene {
         menuConfig.fontSize = "48px";
         this.playButton = this.add.text(game.config.width / 2, game.config.height / 2 + 150, "Press SPACE to Start", menuConfig).setOrigin(0.5);
         menuConfig.fontSize = "92px";
+        menuConfig.strokeThickness = 40;
         this.add.text(game.config.width / 2, 200, "MECHANIC\nPANIC!", menuConfig).setOrigin(0.5);
+
+        if(highScore > 0) {
+            menuConfig.color = "#ae1ee3"
+            menuConfig.fontSize = "32px";
+            menuConfig.strokeThickness = 10;
+            this.add.text(game.config.width / 2, 40, `HIGH SCORE: ${highScore} SECONDS`, menuConfig).setOrigin(0.5);
+        }
 
         this.scaleCounter = 0;
     }

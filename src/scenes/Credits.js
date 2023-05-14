@@ -16,7 +16,7 @@ class Credits extends Phaser.Scene {
               this.scene.transition({
                 target: "menuScene",
                 sleep: true,
-                duration: 2000,
+                duration: 500,
                 onUpdate: function (progress) {
                   const t = Phaser.Math.Easing.Quadratic.InOut(progress);
                   cam.setViewport(0, t * defaultHeight, cam.width, (1 - t) * defaultHeight);
@@ -24,8 +24,7 @@ class Credits extends Phaser.Scene {
                   targetCam.setScroll(0, (1 - t) * defaultHeight);
                 }
               });
-            },
-            this);
+            },this);
 
         let creditsConfig = {
             fontFamily: "Kanit",
@@ -35,11 +34,11 @@ class Credits extends Phaser.Scene {
             stroke: "#2b2b2b",
             strokeThickness: 10
         }
-        this.add.text(game.config.width / 2, 240, "CREDITS", creditsConfig).setOrigin(0.5);
+        this.add.text(game.config.width / 2, 40, "CREDITS", creditsConfig).setOrigin(0.5);
         this.add.text(game.config.width / 2, game.config.height - 100, "THANKS FOR PLAYING!", creditsConfig).setOrigin(0.5);
         creditsConfig.fontSize = "24px";
         this.add.text(game.config.width / 2, game.config.height - 40, "Press UP to Return to Title Screen", creditsConfig).setOrigin(0.5);
-        this.add.text(game.config.width / 2, 340, "Mechanic Panic is by Lily Demos including all art and music\nFont is Kanit-Bold by Cadson Demak from Google Fonts", 
+        this.add.text(game.config.width / 2, 140, "Mechanic Panic is by Lily Demos including all art and music\nFont is Kanit-Bold by Cadson Demak from Google Fonts", 
                       creditsConfig).setOrigin(0.5);
     }
 }

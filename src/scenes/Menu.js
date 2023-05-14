@@ -27,7 +27,7 @@ class Menu extends Phaser.Scene {
               this.scene.transition({
                 target: "tutorialScene",
                 sleep: true,
-                duration: 2000,
+                duration: 500,
                 onUpdate: function (progress) {
                   const t = Phaser.Math.Easing.Quadratic.InOut(progress);
                   cam.setViewport(0, t * defaultHeight, cam.width, (1 - t) * defaultHeight);
@@ -35,8 +35,7 @@ class Menu extends Phaser.Scene {
                   targetCam1.setScroll(0, (1 - t) * defaultHeight);
                 }
               });
-            },
-            this);
+            },this);
 
           //sliding scene transition to credits
           this.input.keyboard.on(
@@ -45,7 +44,7 @@ class Menu extends Phaser.Scene {
               this.scene.transition({
                 target: "creditsScene",
                 sleep: true,
-                duration: 2000,
+                duration: 500,
                 onUpdate: function (progress) {
                   const t = Phaser.Math.Easing.Quadratic.InOut(progress);
                   
@@ -54,8 +53,7 @@ class Menu extends Phaser.Scene {
                   targetCam2.setScroll(0, -(1 - t) * defaultHeight);
                 }
               });
-            },
-            this);
+            },this);
 
         //define input
         keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -88,9 +86,6 @@ class Menu extends Phaser.Scene {
         }
 
         this.scaleCounter = 0;
-
-        this.camera = new Phaser.Cameras.Scene2D.Camera(0, 0, game.config.width, game.config.height);
-        this.camera.scrollY = -500;
     }
 
     update() {
@@ -111,6 +106,9 @@ class Menu extends Phaser.Scene {
         this.gearRight.angle -= 0.5;
 
         if(Phaser.Input.Keyboard.JustDown(keySpace)) {
+            //play sfx
+            //stop effect
+            //wait till done then:
             this.scene.start("playScene");
         }
     }
